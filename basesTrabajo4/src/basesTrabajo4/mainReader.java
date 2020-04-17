@@ -1,11 +1,15 @@
 package basesTrabajo4;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Scanner;
 
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.hbase.CompareOperator;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -30,13 +34,20 @@ import org.apache.hadoop.hbase.client.Result;
 import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.filter.BinaryComparator;
+import org.apache.hadoop.hbase.filter.SingleColumnValueFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 
 public class mainReader {
 	
 	
 	public static void addData(Connection con) {
-		String pathToCsv = "/home/pascal/Downloads/heroes_information.csv";
+		File file = new File("src/basesTrabajo4/heroes_information.csv");
+		String absolutePath = file.getAbsolutePath();
+		
+		System.out.println(absolutePath);
+		//String pathToCsv = "/basesTrabajo4/src/basesTrabajo4/heroes_information.csv";
+		String pathToCsv = absolutePath;
 		BufferedReader csvReader=null;
 		String [] attributes = {"id", "name","Gender","Eye color","Race","Hair color","Height","Publisher","Skin color","Alignment","Weight"}; 
 		try {
@@ -94,21 +105,89 @@ public class mainReader {
 				System.out.println("NO SE PUEDE CREAR PORQUE YA EXISTE PAPUUUUU");
 			}else {
 				hbaseAdmin.createTable(tabla);	
+				addData(con);
 			}
 			
-			addData(con);
-			
+			menuDeFiltros(con);
 			con.close();
-			
-			
-			
 			
 		}catch(Exception e) {
 			System.out.println("Error "+e);
 		}
+			
+	}
+	
+	public static void menuDeFiltros(Connection con) {
+		System.out.println(""
+				+ "QUE DESEA BUSCAR?\n"
+				+ "1) MARVEL\n"
+				+ "2) DC COMICS\n"
+				+ "3) DARK HORSE COMICS\n"
+				+ "4) IMAGE COMICS");
+		
+		Scanner sc = new Scanner(System.in);
+		String opcPublisher = sc.nextLine();
+
+		String publisher = "";
+		
+		if(opcPublisher.equals("1")) {
+			publisher = "Marvel Comics";
+		}else if(opcPublisher.equals("2")) {
+			publisher = "DC Comics";
+		}else if(opcPublisher.equals("3")) {
+			publisher = "Dark Horse Comics";
+		}else if(opcPublisher.equals("4")) {
+			publisher = "Image Comics";
+		}
 		
 		
+		System.out.println(""
+				+ "QUE BANDO QUIERES MOSTRAR DE " + publisher + "\n"
+				+ "1) BUENOS\n"
+				+ "2) MALOS\n"
+				+ "3) NEUTRALES\n"
+				+ "4) OTROS");
 		
+		Scanner sc2 = new Scanner(System.in);
+		String opcAligment = sc2.nextLine();
+		
+		String aligment = "";
+		
+		if(opcAligment.equals("1")) {
+			aligment = "good";
+		}else if(opcAligment.equals("2")) {
+			aligment = "bad";
+		}else if(opcAligment.equals("3")) {
+			aligment = "neutral";
+		}else if(opcAligment.equals("4")) {
+			aligment = "-";
+		} 
+		
+		System.out.println("MOSTRANDO " + publisher + " - " + aligment);
+
+		try {
+	        Table t = con.getTable(TableName.valueOf("Superheroes"));
+	        
+			SingleColumnValueFilter f = new SingleColumnValueFilter(
+					Bytes.toBytes(aligment),
+					Bytes.toBytes("Publisher"),
+					CompareOperator.EQUAL,
+					new BinaryComparator(Bytes.toBytes(publisher)));
+	        Scan scaneo = new Scan();
+	        f.setFilterIfMissing(true);
+	        scaneo.setFilter(f);
+	        ResultScanner rs = t.getScanner(scaneo);
+			
+	        for(Result r1:rs) {
+				byte[] name = r1.getValue(Bytes.toBytes(aligment), Bytes.toBytes("name"));
+				byte[] id = r1.getRow();
+				byte[] race = r1.getValue(Bytes.toBytes(aligment), Bytes.toBytes("Race"));
+				System.out.println(" | ID:" + Bytes.toString(id) + " | Name: " + Bytes.toString(name) + " | Race: " + Bytes.toString(race) );
+		}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 
