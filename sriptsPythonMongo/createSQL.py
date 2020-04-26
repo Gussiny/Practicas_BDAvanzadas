@@ -1,7 +1,5 @@
 import sqlite3 
-
 connection = sqlite3.connect("reta60Tournaments.db") 
-
 crsr = connection.cursor() 
 
 
@@ -37,6 +35,17 @@ else :
     sql_command = """INSERT INTO user(fname, lname, gender, userType, birthDate) VALUES ("Oscar", "Del Bull", "M", "player", "1999-07-26");"""
     crsr.execute(sql_command) 
     sql_command = """INSERT INTO user(fname, lname, gender, userType, birthDate) VALUES ("Sergio", "Sgioma", "M", "admin", "1987-05-19");"""
+    crsr.execute(sql_command) 
+
+    sql_command = """INSERT INTO user(fname, lname, gender, userType, birthDate) VALUES ("Micheal", "Douglas", "M", "player", "1992-04-21");"""
+    crsr.execute(sql_command) 
+    sql_command = """INSERT INTO user(fname, lname, gender, userType, birthDate) VALUES ("Jerry", "Seinfield", "M", "player", "1993-01-16");"""
+    crsr.execute(sql_command) 
+    sql_command = """INSERT INTO user(fname, lname, gender, userType, birthDate) VALUES ("George", "Coztanza", "M", "player", "1995-05-11");"""
+    crsr.execute(sql_command) 
+    sql_command = """INSERT INTO user(fname, lname, gender, userType, birthDate) VALUES ("Lucas", "Donis", "M", "player", "1991-05-26");"""
+    crsr.execute(sql_command) 
+    sql_command = """INSERT INTO user(fname, lname, gender, userType, birthDate) VALUES ("Pete", "Sampras", "M", "player", "1996-05-21");"""
     crsr.execute(sql_command) 
 
 
@@ -185,7 +194,7 @@ else :
 
 
     
-sql_command="SELECT * FROM MATCH"
+sql_command="SELECT * FROM SETS"
 crsr.execute(sql_command)
 ans = crsr.fetchall()  
 printTables(ans)
